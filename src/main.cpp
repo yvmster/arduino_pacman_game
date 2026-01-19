@@ -1,18 +1,27 @@
 #include <Arduino.h>
+#include "Game.h"
 
-// put function declarations here:
-int myFunction(int, int);
+Game game;
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+    Serial.begin(SERIAL_BAUD);
+    delay(1000);
+
+    DEBUG_PRINTLN("[MAIN] Pac-Man starting...");
+
+    if (!game.init()) {
+        DEBUG_PRINTLN("[MAIN] Game init failed!");
+    }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+    static unsigned long lastFrame = 0;
+    unsigned long now = millis();
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+    if (now - lastFrame >= FRAME_TIME) {
+        lastFrame = now;
+        game.handleInput();
+        game.update();
+        game.render();
+    }
 }
