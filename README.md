@@ -6,7 +6,7 @@
 
 Классическая игра Pac-Man на базе Arduino Uno с управлением через ИК-пульт и цветным TFT-дисплеем.
 
-**GitHub:** [yvmster/arduino_pacman](https://github.com/yvmster/arduino_mp3_player)
+**GitHub:** [yvmster/arduino_pacman_game](https://github.com/yvmster/arduino_pacman_game)
 
 ---
 
@@ -17,7 +17,7 @@
 ### Ключевые особенности
 
 - Классическое игровое поле 28x31 клеток
-- 4 призрака с упрощенным AI преследования
+- 4 призрака с упрощенным AI и замедленной скоростью
 - Пиксельная графика (спрайты 8x8 пикселей)
 - Частота обновления 30 FPS
 - Звуковые эффекты на пьезодинамике
@@ -33,8 +33,8 @@
 | Компонент | Модель | Описание |
 |-----------|--------|----------|
 | **Микроконтроллер** | Arduino Uno (ATmega328P) | 32KB Flash, 2KB RAM, 1KB EEPROM |
-| **Дисплей** | Waveshare ILI9486 TFT 3.5" | 320x480 пикселей, SPI интерфейс |
-| **ИК-приёмник** | iarduino IR RX | 21-key remote, проприетарный протокол |
+| **Дисплей** | Waveshare ILI9486 TFT 3.5" | 320x480 пикселей, SPI интерфейс (Waveshare_ILI9486) |
+| **ИК-приёмник** | iarduino IR RX | 21-key remote, библиотека iarduino_IR |
 | **Пьезодинамик** | Buzzer | Звуковые эффекты и мелодии |
 
 ### Распиновка
@@ -144,6 +144,8 @@ TFT Display (SPI):
 | # | Перезапуск игры |
 | 0 | Меню настроек |
 | OK | Подтверждение в меню |
+
+**Примечание:** библиотека iarduino_IR берется из Arduino IDE через `lib_extra_dirs`.
 
 ### Пользовательский интерфейс (HUD)
 
@@ -284,7 +286,7 @@ public:
     void clear();
     
 private:
-    MCUFRIEND_kbv tft;
+    Waveshare_ILI9486 tft;
     void drawSprite(int x, int y, const uint8_t* sprite);
 };
 ```
@@ -298,7 +300,7 @@ public:
     IRCommand read();      // Чтение команды с пульта
     
 private:
-    iarduino_IR ir;
+    iarduino_IR_RX ir;
 };
 ```
 
@@ -375,8 +377,8 @@ const uint8_t MAZE_DATA[31][28] = {
 | Библиотека | Версия | Назначение |
 |------------|--------|------------|
 | **Adafruit GFX** | ^1.11.0 | Базовая графическая библиотека |
-| **MCUFRIEND_kbv** | ^3.0.0 | Драйвер для ILI9486 дисплея |
-| **iarduino_IR** | ^1.5.0 | Работа с ИК-приемником iarduino |
+| **Waveshare_ILI9486** | 2.0.0 | Драйвер для Waveshare ILI9486 TFT (Arduino IDE) |
+| **iarduino_IR** | 1.0.3 | Работа с ИК-приемником iarduino (Arduino IDE) |
 
 ### Установка зависимостей
 
@@ -390,12 +392,14 @@ framework = arduino
 
 lib_deps = 
     adafruit/Adafruit GFX Library@^1.11.0
-    mcufriend_kbv@^3.0.0
-    iarduino/iarduino_IR@^1.5.0
+    adafruit/Adafruit BusIO@^1.14.0
+
+lib_extra_dirs = /Users/vadimyakupov/Documents/Arduino/libraries
 
 build_flags = 
-    -DUSE_ADAFRUIT_SHIELD_PINOUT
     -O2
+    -DDEBUG_ENABLED=1
+    -DSERIAL_BAUD=115200
 ```
 
 ---
@@ -404,21 +408,20 @@ build_flags =
 
 ### 1. Экономия RAM (2KB доступно)
 
-- Карта лабиринта: `31 × 28 = 868 байт`
-- Спрайты хранятся в Flash (PROGMEM)
+- Карта лабиринта хранится в PROGMEM, состояние точек — 2 бита на клетку
 - Минимальное использование String, только char[]
 - Буфер экрана не используется, прямая отрисовка
 
 **Оценка потребления RAM:**
 
 ```
-Карта:              868 байт
+Карта (точки):      ~220 байт
 Игрок:              ~20 байт
 4 призрака:         ~80 байт
-Переменные игры:    ~50 байт
+Переменные игры:    ~80 байт
 Стек и библиотеки:  ~500 байт
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Итого:              ~1518 байт / 2048 байт (74%)
+Итого:              ~900 байт / 2048 байт (≈44%)
 ```
 
 ### 2. Скорость отрисовки
@@ -491,8 +494,8 @@ void Display::drawPlayer(Player& player) {
 
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/yvmster/arduino_pacman.git
-cd arduino_pacman
+git clone https://github.com/yvmster/arduino_pacman_game.git
+cd arduino_pacman_game
 
 # 2. Собрать проект
 pio run
@@ -546,7 +549,7 @@ MIT License - см. файл [LICENSE](LICENSE)
 **yvmster**
 
 - GitHub: [@yvmster](https://github.com/yvmster)
-- Проект: [arduino_pacman](https://github.com/yvmster/arduino_pacman)
+- Проект: [arduino_pacman_game](https://github.com/yvmster/arduino_pacman_game)
 
 ---
 
