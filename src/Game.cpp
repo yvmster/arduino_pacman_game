@@ -9,10 +9,10 @@ Game::Game()
 }
 
 bool Game::init() {
-    DEBUG_PRINTLN("[GAME] Initializing game...");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Initializing game..."));
 
     if (!display.init()) {
-        DEBUG_PRINTLN("[GAME] Display init failed");
+        DEBUG_PRINTLN(FLASH_STR("[GAME] Display init failed"));
         return false;
     }
 
@@ -34,7 +34,7 @@ bool Game::init() {
     display.drawMainMenu();
     audio.playStart();
 
-    DEBUG_PRINTLN("[GAME] Game initialized");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Game initialized"));
     return true;
 }
 
@@ -154,27 +154,27 @@ void Game::startGame() {
 
     audio.startBackgroundMusic();
 
-    DEBUG_PRINTLN("[GAME] Game started");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Game started"));
 }
 
 void Game::pauseGame() {
     state = STATE_PAUSED;
-    DEBUG_PRINTLN("[GAME] Game paused");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Game paused"));
 }
 
 void Game::resumeGame() {
     state = STATE_PLAYING;
-    DEBUG_PRINTLN("[GAME] Game resumed");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Game resumed"));
 }
 
 void Game::gameOver() {
     state = STATE_GAME_OVER;
     audio.stopBackgroundMusic();
-    DEBUG_PRINTLN("[GAME] Game over");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Game over"));
 }
 
 void Game::restartGame() {
-    DEBUG_PRINTLN("[GAME] Game restarted");
+    DEBUG_PRINTLN(FLASH_STR("[GAME] Game restarted"));
     startGame();
 }
 
@@ -204,7 +204,7 @@ void Game::checkCollisions() {
             lives--;
             audio.playDeath();
 
-            DEBUG_PRINT("[GAME] Player hit! Lives left: ");
+            DEBUG_PRINT(FLASH_STR("[GAME] Player hit! Lives left: "));
             DEBUG_PRINTLN(lives);
 
             if (lives <= 0) {
@@ -230,7 +230,7 @@ void Game::checkLevelComplete() {
         ghosts[1].reset();
         ghosts[2].reset();
         ghosts[3].reset();
-        DEBUG_PRINT("[GAME] Level completed! New level: ");
+        DEBUG_PRINT(FLASH_STR("[GAME] Level completed! New level: "));
         DEBUG_PRINTLN(level);
     }
 }

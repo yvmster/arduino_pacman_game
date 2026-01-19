@@ -1,17 +1,18 @@
 #include "Audio.h"
+#include <avr/pgmspace.h>
 
-// Мелодии
-const int MELODY_START[] = {659, 659, 659, 523, 659, 784};
-const int DURATION_START[] = {150, 150, 150, 100, 150, 300};
-const int LENGTH_START = 6;
+// Мелодии (PROGMEM)
+const uint16_t MELODY_START[] PROGMEM = {659, 659, 659, 523, 659, 784};
+const uint16_t DURATION_START[] PROGMEM = {150, 150, 150, 100, 150, 300};
+const uint8_t LENGTH_START = 6;
 
-const int MELODY_DEATH[] = {523, 494, 440, 392, 349, 330, 294};
-const int DURATION_DEATH[] = {200, 200, 200, 200, 200, 200, 400};
-const int LENGTH_DEATH = 7;
+const uint16_t MELODY_DEATH[] PROGMEM = {523, 494, 440, 392, 349, 330, 294};
+const uint16_t DURATION_DEATH[] PROGMEM = {200, 200, 200, 200, 200, 200, 400};
+const uint8_t LENGTH_DEATH = 7;
 
-const int MELODY_BG[] = {262, 294, 330, 349};
-const int DURATION_BG[] = {200, 200, 200, 200};
-const int LENGTH_BG = 4;
+const uint16_t MELODY_BG[] PROGMEM = {262, 294, 330, 349};
+const uint16_t DURATION_BG[] PROGMEM = {200, 200, 200, 200};
+const uint8_t LENGTH_BG = 4;
 
 Audio::Audio() 
     : buzzerPin(BUZZER_PIN), 
@@ -23,8 +24,8 @@ Audio::Audio()
 
 void Audio::init() {
     pinMode(buzzerPin, OUTPUT);
-    DEBUG_PRINTLN("[AUDIO] Audio system initialized");
-    DEBUG_PRINT("[AUDIO] Buzzer pin: ");
+    DEBUG_PRINTLN(FLASH_STR("[AUDIO] Audio system initialized"));
+    DEBUG_PRINT(FLASH_STR("[AUDIO] Buzzer pin: "));
     DEBUG_PRINTLN(buzzerPin);
 }
 
@@ -38,14 +39,14 @@ void Audio::playWakka() {
 void Audio::playDeath() {
     if (!enabled) return;
     
-    DEBUG_PRINTLN("[AUDIO] Playing death melody");
+    DEBUG_PRINTLN(FLASH_STR("[AUDIO] Playing death melody"));
     playMelody(MELODY_DEATH, DURATION_DEATH, LENGTH_DEATH);
 }
 
 void Audio::playStart() {
     if (!enabled) return;
     
-    DEBUG_PRINTLN("[AUDIO] Playing start melody");
+    DEBUG_PRINTLN(FLASH_STR("[AUDIO] Playing start melody"));
     playMelody(MELODY_START, DURATION_START, LENGTH_START);
 }
 
@@ -55,24 +56,27 @@ void Audio::startBackgroundMusic() {
     backgroundPlaying = true;
     bgNoteIndex = 0;
     lastBgNote = millis();
-    DEBUG_PRINTLN("[AUDIO] Background music started");
+    DEBUG_PRINTLN(FLASH_STR("[AUDIO] Background music started"));
 }
 
 void Audio::stopBackgroundMusic() {
     backgroundPlaying = false;
     noTone(buzzerPin);
-    DEBUG_PRINTLN("[AUDIO] Background music stopped");
+    DEBUG_PRINTLN(FLASH_STR("[AUDIO] Background music stopped"));
 }
 
 void Audio::update() {
     if (!enabled || !backgroundPlaying) return;
     
     unsigned long now = millis();
-    
+    uint16_t duration = pgm_read_word(&DURATION_BG[bgNoteIndex]);
+
     // Проверяем, пора ли играть следующую ноту
-    if (now - lastBgNote >= (unsigned long)DURATION_BG[bgNoteIndex]) {
+    if (now - lastBgNote >= duration) {
         bgNoteIndex = (bgNoteIndex + 1) % LENGTH_BG;
-        tone(buzzerPin, MELODY_BG[bgNoteIndex], DURATION_BG[bgNoteIndex]);
+        uint16_t freq = pgm_read_word(&MELODY_BG[bgNoteIndex]);
+        duration = pgm_read_word(&DURATION_BG[bgNoteIndex]);
+        tone(buzzerPin, freq, duration);
         lastBgNote = now;
     }
 }
@@ -80,7 +84,7 @@ void Audio::update() {
 void Audio::stopAll() {
     noTone(buzzerPin);
     backgroundPlaying = false;
-    DEBUG_PRINTLN("[AUDIO] All sounds stopped");
+    DEBUG_PRINTLN(FLASH_STR("[AUDIO] All sounds stopped"));
 }
 
 void Audio::setEnabled(bool en) {
@@ -88,8 +92,8 @@ void Audio::setEnabled(bool en) {
     if (!enabled) {
         stopAll();
     }
-    DEBUG_PRINT("[AUDIO] Sound ");
-    DEBUG_PRINTLN(enabled ? "enabled" : "disabled");
+    DEBUG_PRINT(FLASH_STR("[AUDIO] Sound "));
+    DEBUG_PRINTLN(enabled ? FLASH_STR("enabled") : FLASH_STR("disabled"));
 }
 
 bool Audio::isEnabled() const {
@@ -101,12 +105,14 @@ void Audio::playTone(int frequency, int duration) {
     tone(buzzerPin, frequency, duration);
 }
 
-void Audio::playMelody(const int* melody, const int* durations, int length) {
+void Audio::playMelody(const uint16_t* melody, const uint16_t* durations, uint8_t length) {
     if (!enabled) return;
     
-    for (int i = 0; i < length; i++) {
-        tone(buzzerPin, melody[i], durations[i]);
-        delay(durations[i] + 50);  // Небольшая пауза между нотами
+    for (uint8_t i = 0; i < length; i++) {
+        uint16_t freq = pgm_read_word(&melody[i]);
+        uint16_t dur = pgm_read_word(&durations[i]);
+        tone(buzzerPin, freq, dur);
+        delay(dur + 50);
     }
     noTone(buzzerPin);
 }

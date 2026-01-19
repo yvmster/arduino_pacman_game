@@ -84,7 +84,7 @@ public:
      * @param lives Количество жизней
      * @param level Номер уровня
      */
-    void drawHUD(long score, int lives, int level);
+    void drawHUD(uint32_t score, uint8_t lives, uint8_t level);
 
     /**
      * @brief Отрисовка главного меню
@@ -95,7 +95,7 @@ public:
      * @brief Отрисовка экрана Game Over
      * @param score Финальные очки
      */
-    void drawGameOver(long score);
+    void drawGameOver(uint32_t score);
 
     /**
      * @brief Отрисовка экрана паузы

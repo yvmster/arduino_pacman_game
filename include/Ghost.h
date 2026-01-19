@@ -12,22 +12,22 @@ class Ghost {
 public:
     Ghost();
     
-    void init(int startX, int startY, GhostType ghostType);
+    void init(uint8_t startX, uint8_t startY, GhostType ghostType);
     void reset();
     void update(const Player& player, const Map& map);
     
-    int getX() const { return x; }
-    int getY() const { return y; }
+    uint8_t getX() const { return x; }
+    uint8_t getY() const { return y; }
     GhostType getType() const { return type; }
     
-    bool collidesWith(int px, int py) const;
+    bool collidesWith(uint8_t px, uint8_t py) const;
 
 private:
-    int x, y;                    // Позиция в клетках
-    int homeX, homeY;            // Начальная позиция
+    int8_t x, y;                 // Позиция в клетках
+    int8_t homeX, homeY;          // Начальная позиция
     Direction direction;         // Текущее направление
     GhostType type;              // Тип призрака
-    int moveCounter;             // Счетчик для управления скоростью
+    uint8_t moveCounter;         // Счетчик для управления скоростью
     
     void chasePlayer(const Player& player, const Map& map);
     Direction getRandomDirection(const Map& map);

@@ -7,10 +7,10 @@ void setup() {
     Serial.begin(SERIAL_BAUD);
     delay(1000);
 
-    DEBUG_PRINTLN("[MAIN] Pac-Man starting...");
+    DEBUG_PRINTLN(FLASH_STR("[MAIN] Pac-Man starting..."));
 
     if (!game.init()) {
-        DEBUG_PRINTLN("[MAIN] Game init failed!");
+        DEBUG_PRINTLN(FLASH_STR("[MAIN] Game init failed!"));
     }
 }
 

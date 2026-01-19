@@ -62,9 +62,9 @@ private:
 
     // Состояние игры
     GameState state;
-    long score;
-    int lives;
-    int level;
+    uint32_t score;
+    uint8_t lives;
+    uint8_t level;
     unsigned long lastFrameTime;
 
     // Методы управления состояниями

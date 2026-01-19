@@ -9,8 +9,8 @@ Input::Input() : irPin(IR_PIN) {
 bool Input::init() {
     pinMode(irPin, INPUT);
     
-    DEBUG_PRINTLN("[INPUT] IR receiver initialized");
-    DEBUG_PRINT("[INPUT] IR pin: ");
+    DEBUG_PRINTLN(FLASH_STR("[INPUT] IR receiver initialized"));
+    DEBUG_PRINT(FLASH_STR("[INPUT] IR pin: "));
     DEBUG_PRINTLN(irPin);
     
     // Здесь должна быть инициализация библиотеки ИК
@@ -55,32 +55,33 @@ IRCommand Input::decodeCommand(unsigned long code) {
     // Декодирование кодов кнопок
     switch (code) {
         case IR_UP:
-            DEBUG_PRINTLN("[INPUT] Button UP pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button UP pressed"));
             return CMD_UP;
         case IR_DOWN:
-            DEBUG_PRINTLN("[INPUT] Button DOWN pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button DOWN pressed"));
             return CMD_DOWN;
         case IR_LEFT:
-            DEBUG_PRINTLN("[INPUT] Button LEFT pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button LEFT pressed"));
             return CMD_LEFT;
         case IR_RIGHT:
-            DEBUG_PRINTLN("[INPUT] Button RIGHT pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button RIGHT pressed"));
             return CMD_RIGHT;
         case IR_OK:
-            DEBUG_PRINTLN("[INPUT] Button OK pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button OK pressed"));
             return CMD_OK;
         case IR_STAR:
-            DEBUG_PRINTLN("[INPUT] Button STAR pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button STAR pressed"));
             return CMD_STAR;
         case IR_HASH:
-            DEBUG_PRINTLN("[INPUT] Button HASH pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button HASH pressed"));
             return CMD_HASH;
         case IR_0:
-            DEBUG_PRINTLN("[INPUT] Button 0 pressed");
+            DEBUG_PRINTLN(FLASH_STR("[INPUT] Button 0 pressed"));
             return CMD_0;
         default:
-            DEBUG_PRINT("[INPUT] Unknown code: 0x");
-            DEBUG_PRINTLN(code, HEX);
+            DEBUG_PRINT(FLASH_STR("[INPUT] Unknown code: 0x"));
+            DEBUG_PRINT(code, HEX);
+            DEBUG_PRINTLN("");
             return CMD_NONE;
     }
 }

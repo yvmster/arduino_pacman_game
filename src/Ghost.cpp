@@ -5,7 +5,7 @@ Ghost::Ghost()
       type(GHOST_BLINKY), moveCounter(0) {
 }
 
-void Ghost::init(int startX, int startY, GhostType ghostType) {
+void Ghost::init(uint8_t startX, uint8_t startY, GhostType ghostType) {
     x = startX;
     y = startY;
     homeX = startX;
@@ -14,13 +14,13 @@ void Ghost::init(int startX, int startY, GhostType ghostType) {
     direction = DIR_RIGHT;
     moveCounter = 0;
     
-    DEBUG_PRINT("[GHOST] Ghost ");
+    DEBUG_PRINT(FLASH_STR("[GHOST] Ghost "));
     DEBUG_PRINT((int)type);
-    DEBUG_PRINT(" initialized at (");
+    DEBUG_PRINT(FLASH_STR(" initialized at ("));
     DEBUG_PRINT(x);
-    DEBUG_PRINT(", ");
+    DEBUG_PRINT(FLASH_STR(", "));
     DEBUG_PRINT(y);
-    DEBUG_PRINTLN(")");
+    DEBUG_PRINTLN(FLASH_STR(")"));
 }
 
 void Ghost::reset() {
@@ -33,7 +33,7 @@ void Ghost::reset() {
 void Ghost::update(const Player& player, const Map& map) {
     // Управление скоростью движения
     moveCounter++;
-    if (moveCounter < GHOST_SPEED * 2) {  // Призраки медленнее игрока
+    if (moveCounter < GHOST_SPEED * 2) {
         return;
     }
     moveCounter = 0;
@@ -42,21 +42,19 @@ void Ghost::update(const Player& player, const Map& map) {
     chasePlayer(player, map);
 }
 
-bool Ghost::collidesWith(int px, int py) const {
+bool Ghost::collidesWith(uint8_t px, uint8_t py) const {
     return (x == px && y == py);
 }
 
 void Ghost::chasePlayer(const Player& player, const Map& map) {
-    int px = player.getX();
-    int py = player.getY();
+    int8_t px = static_cast<int8_t>(player.getX());
+    int8_t py = static_cast<int8_t>(player.getY());
     
-    // Упрощенный AI: движемся в сторону игрока
-    int dx = px - x;
-    int dy = py - y;
+    int8_t dx = px - x;
+    int8_t dy = py - y;
     
     Direction newDir = direction;
     
-    // Приоритет: сначала по вертикали, потом по горизонтали
     if (abs(dy) > abs(dx)) {
         newDir = (dy > 0) ? DIR_DOWN : DIR_UP;
         if (!canMove(map, newDir)) {
@@ -69,12 +67,10 @@ void Ghost::chasePlayer(const Player& player, const Map& map) {
         }
     }
     
-    // Если не можем идти к игроку, выбираем случайное направление
     if (!canMove(map, newDir)) {
         newDir = getRandomDirection(map);
     }
     
-    // Обновляем позицию
     if (canMove(map, newDir)) {
         direction = newDir;
         switch (direction) {
@@ -97,7 +93,6 @@ void Ghost::chasePlayer(const Player& player, const Map& map) {
 }
 
 Direction Ghost::getRandomDirection(const Map& map) {
-    // Простой случайный выбор из доступных направлений
     Direction dirs[] = {DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT};
     
     for (int i = 0; i < 4; i++) {
@@ -107,12 +102,12 @@ Direction Ghost::getRandomDirection(const Map& map) {
         }
     }
     
-    return direction;  // Если ничего не подошло, продолжаем в текущем направлении
+    return direction;
 }
 
 bool Ghost::canMove(const Map& map, Direction dir) {
-    int newX = x;
-    int newY = y;
+    int8_t newX = x;
+    int8_t newY = y;
     
     switch (dir) {
         case DIR_UP:

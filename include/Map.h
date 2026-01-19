@@ -80,7 +80,7 @@ public:
      * @brief Получить количество оставшихся точек
      * @return Количество точек (обычных + power)
      */
-    int getDotsRemaining() const;
+    uint16_t getDotsRemaining() const;
 
     /**
      * @brief Проверка, завершен ли уровень
@@ -97,18 +97,29 @@ public:
     bool isValidPos(int x, int y) const;
 
 private:
-    uint8_t tiles[MAP_HEIGHT][MAP_WIDTH];  // Игровое поле
-    int dotsCount;                         // Счетчик оставшихся точек
+    static const uint16_t DOT_STATE_SIZE = (MAP_WIDTH * MAP_HEIGHT * 2 + 7) / 8;
+    uint8_t dotState[DOT_STATE_SIZE];  // 2 бита на клетку: 0=none,1=dot,2=power
+    uint16_t dotsCount;                // Счетчик оставшихся точек
 
     /**
-     * @brief Загрузка данных карты из PROGMEM/массива
+     * @brief Получить базовый тайл из PROGMEM
      */
-    void loadMapData();
+    uint8_t getBaseTile(int x, int y) const;
 
     /**
-     * @brief Подсчет точек на карте
+     * @brief Инициализация состояния точек из базовой карты
      */
-    void countDots();
+    void initDotState();
+
+    /**
+     * @brief Получить состояние точки (2 бита)
+     */
+    uint8_t getDotState(uint16_t index) const;
+
+    /**
+     * @brief Установить состояние точки (2 бита)
+     */
+    void setDotState(uint16_t index, uint8_t value);
 };
 
 #endif // MAP_H

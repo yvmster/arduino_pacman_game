@@ -5,7 +5,7 @@ Player::Player()
       alive(true), moveCounter(0) {
 }
 
-void Player::init(int startX, int startY) {
+void Player::init(uint8_t startX, uint8_t startY) {
     x = startX;
     y = startY;
     direction = DIR_NONE;
@@ -13,11 +13,11 @@ void Player::init(int startX, int startY) {
     alive = true;
     moveCounter = 0;
     
-    DEBUG_PRINT("[PLAYER] Initialized at (");
+    DEBUG_PRINT(FLASH_STR("[PLAYER] Initialized at ("));
     DEBUG_PRINT(x);
-    DEBUG_PRINT(", ");
+    DEBUG_PRINT(FLASH_STR(", "));
     DEBUG_PRINT(y);
-    DEBUG_PRINTLN(")");
+    DEBUG_PRINTLN(FLASH_STR(")"));
 }
 
 void Player::reset() {
@@ -42,7 +42,7 @@ void Player::update(Map& map) {
     
     // Движение в текущем направлении
     if (!canMove(map, direction)) {
-        return;  // Упираемся в стену
+        return;
     }
     
     // Обновляем позицию
@@ -74,8 +74,8 @@ void Player::setDirection(Direction dir) {
 }
 
 bool Player::canMove(Map& map, Direction dir) {
-    int newX = x;
-    int newY = y;
+    int8_t newX = x;
+    int8_t newY = y;
     
     switch (dir) {
         case DIR_UP:
@@ -99,12 +99,12 @@ bool Player::canMove(Map& map, Direction dir) {
 
 void Player::kill() {
     alive = false;
-    DEBUG_PRINTLN("[PLAYER] Player killed!");
+    DEBUG_PRINTLN(FLASH_STR("[PLAYER] Player killed!"));
 }
 
 void Player::revive() {
     alive = true;
     direction = DIR_NONE;
     nextDirection = DIR_NONE;
-    DEBUG_PRINTLN("[PLAYER] Player revived");
+    DEBUG_PRINTLN(FLASH_STR("[PLAYER] Player revived"));
 }

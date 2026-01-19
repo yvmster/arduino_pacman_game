@@ -4,20 +4,21 @@ Display::Display() : displayID(0) {
 }
 
 bool Display::init() {
-    DEBUG_PRINTLN("[DISPLAY] Initializing TFT display...");
+    DEBUG_PRINTLN(FLASH_STR("[DISPLAY] Initializing TFT display..."));
     
     displayID = tft.readID();
-    DEBUG_PRINT("[DISPLAY] Display ID: 0x");
-    DEBUG_PRINTLN(displayID, HEX);
+    DEBUG_PRINT(FLASH_STR("[DISPLAY] Display ID: 0x"));
+    DEBUG_PRINT(displayID, HEX);
+    DEBUG_PRINTLN("");
     
     tft.begin(displayID);
     tft.setRotation(0);  // Портретная ориентация
     
     clear();
     
-    DEBUG_PRINT("[DISPLAY] Display initialized: ");
+    DEBUG_PRINT(FLASH_STR("[DISPLAY] Display initialized: "));
     DEBUG_PRINT(SCREEN_WIDTH);
-    DEBUG_PRINT("x");
+    DEBUG_PRINT(FLASH_STR("x"));
     DEBUG_PRINTLN(SCREEN_HEIGHT);
     
     return true;
@@ -28,7 +29,7 @@ void Display::clear(uint16_t color) {
 }
 
 void Display::drawMap(const Map& map) {
-    DEBUG_PRINTLN("[DISPLAY] Drawing full map...");
+    DEBUG_PRINTLN(FLASH_STR("[DISPLAY] Drawing full map..."));
     
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
@@ -36,7 +37,7 @@ void Display::drawMap(const Map& map) {
         }
     }
     
-    DEBUG_PRINTLN("[DISPLAY] Map drawing complete");
+    DEBUG_PRINTLN(FLASH_STR("[DISPLAY] Map drawing complete"));
 }
 
 void Display::drawTile(int x, int y, uint8_t tile) {
@@ -131,7 +132,7 @@ void Display::eraseGhost(int x, int y) {
     tft.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE, COLOR_BG);
 }
 
-void Display::drawHUD(long score, int lives, int level) {
+void Display::drawHUD(uint32_t score, uint8_t lives, uint8_t level) {
     // Очищаем область HUD
     tft.fillRect(0, 0, SCREEN_WIDTH, GAME_OFFSET_Y, COLOR_BLACK);
     
@@ -172,15 +173,17 @@ void Display::drawMainMenu() {
     drawCenteredText("by yvmster", 420, COLOR_WHITE, 1);
 }
 
-void Display::drawGameOver(long score) {
+void Display::drawGameOver(uint32_t score) {
     // Полупрозрачный оверлей (просто затемняем)
     tft.fillRect(0, 150, SCREEN_WIDTH, 180, COLOR_BLACK);
     
     drawCenteredText("GAME OVER", 180, COLOR_RED, 3);
     
-    char scoreText[32];
-    sprintf(scoreText, "Score: %ld", score);
-    drawCenteredText(scoreText, 230, COLOR_WHITE, 2);
+    tft.setTextColor(COLOR_WHITE);
+    tft.setTextSize(2);
+    tft.setCursor(90, 230);
+    tft.print("Score: ");
+    tft.print(score);
     
     drawCenteredText("Press # to Restart", 280, COLOR_GREEN, 1);
 }

@@ -72,11 +72,11 @@ public:
     bool isEnabled() const;
 
 private:
-    int buzzerPin;              // Пин пьезодинамика
+    uint8_t buzzerPin;          // Пин пьезодинамика
     bool enabled;               // Включен ли звук
     bool backgroundPlaying;     // Играет ли фоновая музыка
     unsigned long lastBgNote;   // Время последней ноты фоновой музыки
-    int bgNoteIndex;            // Индекс текущей ноты
+    uint8_t bgNoteIndex;        // Индекс текущей ноты
 
     /**
      * @brief Воспроизвести ноту
@@ -87,11 +87,11 @@ private:
 
     /**
      * @brief Воспроизвести мелодию
-     * @param melody Массив частот
-     * @param durations Массив длительностей
+     * @param melody Массив частот (PROGMEM)
+     * @param durations Массив длительностей (PROGMEM)
      * @param length Количество нот
      */
-    void playMelody(const int* melody, const int* durations, int length);
+    void playMelody(const uint16_t* melody, const uint16_t* durations, uint8_t length);
 };
 
 #endif // AUDIO_H
