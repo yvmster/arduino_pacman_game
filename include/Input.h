@@ -2,6 +2,7 @@
 #define INPUT_H
 
 #include "Config.h"
+#include <iarduino_IR_RX.h>
 
 /**
  * @brief Типы команд от ИК-пульта
@@ -57,14 +58,17 @@ public:
     bool available();
 
 private:
-    int irPin;  // Пин ИК-приемника
+    int irPin;                 // Пин ИК-приемника
+    iarduino_IR_RX irrecv;     // Объект ИК-приемника
+    uint32_t pendingCode;      // Буфер кода
+    bool hasPending;           // Флаг наличия кода
 
     /**
      * @brief Декодирование кода кнопки в команду
      * @param code Код кнопки
      * @return Команда
      */
-    IRCommand decodeCommand(unsigned long code);
+    IRCommand decodeCommand(uint32_t code);
 };
 
 #endif // INPUT_H

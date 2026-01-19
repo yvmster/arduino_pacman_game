@@ -19,11 +19,17 @@ Audio::Audio()
       enabled(true), 
       backgroundPlaying(false),
       lastBgNote(0),
-      bgNoteIndex(0) {
+      bgNoteIndex(0),
+      toneActive(false),
+      toneEndMs(0),
+      toneToggleUs(0),
+      toneHalfPeriodUs(0),
+      toneLevel(false) {
 }
 
 void Audio::init() {
     pinMode(buzzerPin, OUTPUT);
+    digitalWrite(buzzerPin, LOW);
     DEBUG_PRINTLN(FLASH_STR("[AUDIO] Audio system initialized"));
     DEBUG_PRINT(FLASH_STR("[AUDIO] Buzzer pin: "));
     DEBUG_PRINTLN(buzzerPin);
@@ -31,9 +37,7 @@ void Audio::init() {
 
 void Audio::playWakka() {
     if (!enabled) return;
-    
-    // Короткий звук "wakka"
-    tone(buzzerPin, TONE_WAKKA, 50);
+    startTone(TONE_WAKKA, 50);
 }
 
 void Audio::playDeath() {
@@ -61,28 +65,32 @@ void Audio::startBackgroundMusic() {
 
 void Audio::stopBackgroundMusic() {
     backgroundPlaying = false;
-    noTone(buzzerPin);
+    stopTone();
     DEBUG_PRINTLN(FLASH_STR("[AUDIO] Background music stopped"));
 }
 
 void Audio::update() {
+    updateTone();
+
     if (!enabled || !backgroundPlaying) return;
-    
+
+    if (toneActive) {
+        return;
+    }
+
     unsigned long now = millis();
     uint16_t duration = pgm_read_word(&DURATION_BG[bgNoteIndex]);
-
-    // Проверяем, пора ли играть следующую ноту
     if (now - lastBgNote >= duration) {
         bgNoteIndex = (bgNoteIndex + 1) % LENGTH_BG;
         uint16_t freq = pgm_read_word(&MELODY_BG[bgNoteIndex]);
         duration = pgm_read_word(&DURATION_BG[bgNoteIndex]);
-        tone(buzzerPin, freq, duration);
+        startTone(freq, duration);
         lastBgNote = now;
     }
 }
 
 void Audio::stopAll() {
-    noTone(buzzerPin);
+    stopTone();
     backgroundPlaying = false;
     DEBUG_PRINTLN(FLASH_STR("[AUDIO] All sounds stopped"));
 }
@@ -100,19 +108,54 @@ bool Audio::isEnabled() const {
     return enabled;
 }
 
-void Audio::playTone(int frequency, int duration) {
-    if (!enabled) return;
-    tone(buzzerPin, frequency, duration);
+void Audio::startTone(uint16_t frequency, uint16_t duration) {
+    if (!enabled || frequency == 0) return;
+
+    toneActive = true;
+    toneEndMs = millis() + duration;
+    toneHalfPeriodUs = static_cast<uint16_t>(500000UL / frequency);
+    toneToggleUs = micros();
+    toneLevel = false;
+    digitalWrite(buzzerPin, toneLevel);
+}
+
+void Audio::stopTone() {
+    toneActive = false;
+    digitalWrite(buzzerPin, LOW);
+}
+
+void Audio::updateTone() {
+    if (!toneActive) {
+        return;
+    }
+
+    unsigned long nowMs = millis();
+    if (static_cast<long>(nowMs - toneEndMs) >= 0) {
+        stopTone();
+        return;
+    }
+
+    unsigned long nowUs = micros();
+    if (static_cast<long>(nowUs - toneToggleUs) >= 0) {
+        toneLevel = !toneLevel;
+        digitalWrite(buzzerPin, toneLevel);
+        toneToggleUs = nowUs + toneHalfPeriodUs;
+    }
 }
 
 void Audio::playMelody(const uint16_t* melody, const uint16_t* durations, uint8_t length) {
     if (!enabled) return;
-    
+
     for (uint8_t i = 0; i < length; i++) {
         uint16_t freq = pgm_read_word(&melody[i]);
         uint16_t dur = pgm_read_word(&durations[i]);
-        tone(buzzerPin, freq, dur);
-        delay(dur + 50);
+        startTone(freq, dur);
+        unsigned long start = millis();
+        while (static_cast<long>(millis() - (start + dur)) < 0) {
+            updateTone();
+        }
+        stopTone();
+        delay(50);
     }
-    noTone(buzzerPin);
 }
+

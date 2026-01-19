@@ -78,12 +78,28 @@ private:
     unsigned long lastBgNote;   // Время последней ноты фоновой музыки
     uint8_t bgNoteIndex;        // Индекс текущей ноты
 
+    bool toneActive;            // Идет ли генерация тона
+    unsigned long toneEndMs;    // Время окончания тона
+    unsigned long toneToggleUs; // Время следующего переключения
+    uint16_t toneHalfPeriodUs;  // Полупериод тона
+    bool toneLevel;             // Текущее состояние выхода
+
     /**
-     * @brief Воспроизвести ноту
+     * @brief Запустить генерацию тона
      * @param frequency Частота в Гц
      * @param duration Длительность в мс
      */
-    void playTone(int frequency, int duration);
+    void startTone(uint16_t frequency, uint16_t duration);
+
+    /**
+     * @brief Остановить текущий тон
+     */
+    void stopTone();
+
+    /**
+     * @brief Обновить генерацию тона
+     */
+    void updateTone();
 
     /**
      * @brief Воспроизвести мелодию

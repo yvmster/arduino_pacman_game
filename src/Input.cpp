@@ -1,31 +1,30 @@
 #include "Input.h"
 
-// ПРИМЕЧАНИЕ: Это упрощенная реализация без реальной библиотеки ИК
-// В реальном проекте нужно подключить IRremote или iarduino_IR
-
-Input::Input() : irPin(IR_PIN) {
+Input::Input() : irPin(IR_PIN), irrecv(IR_PIN), pendingCode(0), hasPending(false) {
 }
 
 bool Input::init() {
     pinMode(irPin, INPUT);
+
+    irrecv.begin();
     
     DEBUG_PRINTLN(FLASH_STR("[INPUT] IR receiver initialized"));
     DEBUG_PRINT(FLASH_STR("[INPUT] IR pin: "));
     DEBUG_PRINTLN(irPin);
     
-    // Здесь должна быть инициализация библиотеки ИК
-    // Например: irrecv.enableIRIn();
-    
     return true;
 }
 
 IRCommand Input::read() {
-    // ЗАГЛУШКА: В реальной реализации здесь должно быть:
-    // if (irrecv.decode(&results)) {
-    //     unsigned long code = results.value;
-    //     irrecv.resume();
-    //     return decodeCommand(code);
-    // }
+    if (hasPending) {
+        hasPending = false;
+        return decodeCommand(pendingCode);
+    }
+
+    if (irrecv.check()) {
+        uint32_t code = irrecv.data;
+        return decodeCommand(code);
+    }
     
     return CMD_NONE;
 }
@@ -46,12 +45,20 @@ Direction Input::commandToDirection(IRCommand cmd) {
 }
 
 bool Input::available() {
-    // В реальной реализации:
-    // return irrecv.decode(&results);
+    if (hasPending) {
+        return true;
+    }
+
+    if (irrecv.check()) {
+        pendingCode = irrecv.data;
+        hasPending = true;
+        return true;
+    }
+
     return false;
 }
 
-IRCommand Input::decodeCommand(unsigned long code) {
+IRCommand Input::decodeCommand(uint32_t code) {
     // Декодирование кодов кнопок
     switch (code) {
         case IR_UP:
