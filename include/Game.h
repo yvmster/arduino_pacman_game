@@ -66,6 +66,14 @@ private:
     uint8_t lives;
     uint8_t level;
     unsigned long lastFrameTime;
+    bool needsFullRedraw;
+    uint32_t lastScore;
+    uint8_t lastLives;
+    uint8_t lastLevel;
+    int8_t prevPlayerX;
+    int8_t prevPlayerY;
+    int8_t prevGhostX[MAX_GHOSTS];
+    int8_t prevGhostY[MAX_GHOSTS];
 
     // Методы управления состояниями
     void startGame();

@@ -5,7 +5,17 @@ Game::Game()
       score(0),
       lives(INITIAL_LIVES),
       level(1),
-      lastFrameTime(0) {
+      lastFrameTime(0),
+      needsFullRedraw(true),
+      lastScore(0),
+      lastLives(0),
+      lastLevel(0),
+      prevPlayerX(-1),
+      prevPlayerY(-1) {
+    for (int i = 0; i < MAX_GHOSTS; i++) {
+        prevGhostX[i] = -1;
+        prevGhostY[i] = -1;
+    }
 }
 
 bool Game::init() {
@@ -33,6 +43,14 @@ bool Game::init() {
 
     display.drawMainMenu();
     audio.playStart();
+
+    needsFullRedraw = true;
+    prevPlayerX = -1;
+    prevPlayerY = -1;
+    for (int i = 0; i < MAX_GHOSTS; i++) {
+        prevGhostX[i] = -1;
+        prevGhostY[i] = -1;
+    }
 
     DEBUG_PRINTLN(FLASH_STR("[GAME] Game initialized"));
     return true;
@@ -137,6 +155,8 @@ void Game::handleInput() {
             player.setDirection(dir);
         }
     }
+
+    needsFullRedraw = true;
 }
 
 void Game::startGame() {
@@ -153,6 +173,14 @@ void Game::startGame() {
     state = STATE_PLAYING;
 
     audio.startBackgroundMusic();
+
+    needsFullRedraw = true;
+    prevPlayerX = -1;
+    prevPlayerY = -1;
+    for (int i = 0; i < MAX_GHOSTS; i++) {
+        prevGhostX[i] = -1;
+        prevGhostY[i] = -1;
+    }
 
     DEBUG_PRINTLN(FLASH_STR("[GAME] Game started"));
 }
@@ -216,6 +244,7 @@ void Game::checkCollisions() {
                 ghosts[2].reset();
                 ghosts[3].reset();
             }
+            needsFullRedraw = true;
             break;
         }
     }
@@ -230,17 +259,52 @@ void Game::checkLevelComplete() {
         ghosts[1].reset();
         ghosts[2].reset();
         ghosts[3].reset();
+        needsFullRedraw = true;
         DEBUG_PRINT(FLASH_STR("[GAME] Level completed! New level: "));
         DEBUG_PRINTLN(level);
     }
 }
 
 void Game::renderPlaying() {
-    display.drawHUD(score, lives, level);
-    display.drawMap(map);
-    display.drawPlayer(player.getX(), player.getY(), player.getDirection());
+    if (needsFullRedraw) {
+        display.drawMap(map);
+        needsFullRedraw = false;
+        prevPlayerX = -1;
+        prevPlayerY = -1;
+        for (int i = 0; i < MAX_GHOSTS; i++) {
+            prevGhostX[i] = -1;
+            prevGhostY[i] = -1;
+        }
+    }
+
+    if (score != lastScore || lives != lastLives || level != lastLevel) {
+        display.drawHUD(score, lives, level);
+        lastScore = score;
+        lastLives = lives;
+        lastLevel = level;
+    }
+
+    int8_t currentPlayerX = static_cast<int8_t>(player.getX());
+    int8_t currentPlayerY = static_cast<int8_t>(player.getY());
+    if (prevPlayerX != currentPlayerX || prevPlayerY != currentPlayerY) {
+        if (prevPlayerX >= 0 && prevPlayerY >= 0) {
+            display.drawTile(prevPlayerX, prevPlayerY, map.getTile(prevPlayerX, prevPlayerY));
+        }
+        display.drawPlayer(currentPlayerX, currentPlayerY, player.getDirection());
+        prevPlayerX = currentPlayerX;
+        prevPlayerY = currentPlayerY;
+    }
 
     for (int i = 0; i < MAX_GHOSTS; i++) {
-        display.drawGhost(ghosts[i].getX(), ghosts[i].getY(), ghosts[i].getType());
+        int8_t currentGhostX = static_cast<int8_t>(ghosts[i].getX());
+        int8_t currentGhostY = static_cast<int8_t>(ghosts[i].getY());
+        if (prevGhostX[i] != currentGhostX || prevGhostY[i] != currentGhostY) {
+            if (prevGhostX[i] >= 0 && prevGhostY[i] >= 0) {
+                display.drawTile(prevGhostX[i], prevGhostY[i], map.getTile(prevGhostX[i], prevGhostY[i]));
+            }
+            display.drawGhost(currentGhostX, currentGhostY, ghosts[i].getType());
+            prevGhostX[i] = currentGhostX;
+            prevGhostY[i] = currentGhostY;
+        }
     }
 }
