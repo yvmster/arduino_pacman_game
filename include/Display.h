@@ -3,7 +3,8 @@
 
 #include "Config.h"
 #include "Map.h"
-#include <MCUFRIEND_kbv.h>
+#include <Adafruit_GFX.h>
+#include <Waveshare_ILI9486.h>
 
 /**
  * @brief Класс управления TFT дисплеем
@@ -112,8 +113,7 @@ public:
     void drawCenteredText(const char* text, int y, uint16_t color, uint8_t size = 2);
 
 private:
-    MCUFRIEND_kbv tft;  // Объект TFT дисплея
-    uint16_t displayID; // ID дисплея
+    Waveshare_ILI9486 tft;  // Объект TFT дисплея
 
     /**
      * @brief Получить цвет для типа призрака

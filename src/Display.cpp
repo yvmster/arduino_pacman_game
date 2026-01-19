@@ -1,26 +1,27 @@
 #include "Display.h"
 
-Display::Display() : displayID(0) {
+Display::Display() {
 }
 
 bool Display::init() {
     DEBUG_PRINTLN(FLASH_STR("[DISPLAY] Initializing TFT display..."));
-    
-    displayID = tft.readID();
-    DEBUG_PRINT(FLASH_STR("[DISPLAY] Display ID: 0x"));
-    DEBUG_PRINT(displayID, HEX);
-    DEBUG_PRINTLN("");
-    
-    tft.begin(displayID);
-    tft.setRotation(0);  // Портретная ориентация
-    
+
+    SPI.begin();
+    Wire.begin();
+    delay(50);
+
+    if (!tft.begin()) {
+        DEBUG_PRINTLN(FLASH_STR("[DISPLAY] TFT begin failed"));
+        return false;
+    }
+    tft.setRotation(1);
     clear();
-    
+
     DEBUG_PRINT(FLASH_STR("[DISPLAY] Display initialized: "));
-    DEBUG_PRINT(SCREEN_WIDTH);
+    DEBUG_PRINT(tft.width());
     DEBUG_PRINT(FLASH_STR("x"));
-    DEBUG_PRINTLN(SCREEN_HEIGHT);
-    
+    DEBUG_PRINTLN(tft.height());
+
     return true;
 }
 

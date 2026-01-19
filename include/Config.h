@@ -39,8 +39,8 @@
 #define INITIAL_LIVES   3       // Начальное количество жизней
 #define MAX_GHOSTS      4       // Количество призраков
 
-#define PLAYER_SPEED    2       // Скорость игрока (клеток/сек на FPS=30)
-#define GHOST_SPEED     1       // Скорость призраков
+#define PLAYER_SPEED    1       // Скорость игрока (меньше = быстрее)
+#define GHOST_SPEED     4       // Скорость призраков (больше = медленнее)
 
 // Очки
 #define POINTS_DOT      10      // Очки за обычную точку

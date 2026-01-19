@@ -33,7 +33,7 @@ void Ghost::reset() {
 void Ghost::update(const Player& player, const Map& map) {
     // Управление скоростью движения
     moveCounter++;
-    if (moveCounter < GHOST_SPEED * 2) {
+    if (moveCounter < GHOST_SPEED) {
         return;
     }
     moveCounter = 0;
